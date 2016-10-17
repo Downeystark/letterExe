@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<link href="index.css" rel="stylesheet">
+</head>
+<body>
+
+<textarea id="source" rows="20" cols="100">
+<h1>dfdfd</h1>
+<div>sadfasdf</div>
+<h2>dfdfd</h2>
+<p>dfasdf</p>
+<a href="">test</a>
+<div>sadfasdf</div>
+<img src="x" alt="">
+</textarea>
+
+<textarea id="compiled" rows="20" cols="100"></textarea>
+
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		
+		$('#source').keyup(function(){
+			var s = $(this).val();
+			$('#compiled').val(compoled.exe(s));
+		})
+		
+		var compoled = {
+			exe : function(data){
+				var regexpStart = /<div|<h[1|2|3|4]|<p|<a|<span|<header|href=|<img/g;
+				var regexpEnd = /<\/div|<\/h[1|2|3|4]|<\/p|<\/a|<\/span|<\/header/g;
+				var repStart = '<view';
+				var repEnd = '</view';
+				data = data.replace(regexpStart,function(str){
+					console.log(str);
+					switch(str){
+						case 'href=':
+							repStart = 'bindtap=';
+						break;
+						case '<img':
+							repStart = '<image';
+						break;
+					}
+					return repStart;
+				});
+				
+				data = data.replace(regexpEnd,function(str){
+					console.log(str);
+					switch(str){
+						case 'href=':
+							repEnd = 'bindtap=';
+						break;
+					}
+					return repEnd;
+				});
+				return data;
+			},
+			
+			
+		}
+		
+		$('#source').keyup();
+		
+	})
+</script>
+</body>
+</html>
