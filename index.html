@@ -30,11 +30,10 @@
 		
 		var compoled = {
 			exe : function(data){
-				var regexpStart = /<div|<h[1|2|3|4]|<p|<a|<span|<header|href=|<img/g;
+				var regexpStart = /<div|<h[1|2|3|4]|<p|<a|<span|<header|href=|<img[*?]>]/g;
 				var regexpEnd = /<\/div|<\/h[1|2|3|4]|<\/p|<\/a|<\/span|<\/header/g;
-				var repStart = '<view';
-				var repEnd = '</view';
 				data = data.replace(regexpStart,function(str){
+					var repStart = '<view';
 					console.log(str);
 					switch(str){
 						case 'href=':
@@ -48,6 +47,7 @@
 				});
 				
 				data = data.replace(regexpEnd,function(str){
+					var repEnd = '</view';
 					console.log(str);
 					switch(str){
 						case 'href=':
