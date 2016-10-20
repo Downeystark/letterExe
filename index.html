@@ -12,6 +12,7 @@
 <div>sadfasdf</div>
 <h2>dfdfd</h2>
 <p>dfasdf</p>
+<img src="x" alt="">
 <a href="">test</a>
 <div>sadfasdf</div>
 <img src="x" alt="">
@@ -23,6 +24,14 @@
 <script type="text/javascript">
 	$(function(){
 		
+		String.prototype.getQuery = function(Startname,endName){ 
+			var reg = new RegExp('(^|\\<)'+Startname+' ([^<]*|\/>$)');
+			var url = this.toString();
+			var r = url.match(reg);
+			return r === null ? null : unescape(r[0].replace(Startname,endName).replace('/>','></'+endName+'>')); 
+		}
+		var str = 'http://wpa.qq.com/msgrd?v=3&uin=1438344583&site=q q&menu=yes<img src="adsfsda" />'; 
+		
 		$('#source').keyup(function(){
 			var s = $(this).val();
 			$('#compiled').val(compoled.exe(s));
@@ -30,7 +39,7 @@
 		
 		var compoled = {
 			exe : function(data){
-				var regexpStart = /<div|<h[1|2|3|4]|<p|<a|<span|<header|href=|<img[*?]>]/g;
+				var regexpStart = /<div|<h[1|2|3|4]|<p|<a|<span|<header|href=|<img ([^<]*|\/>$)/g;
 				var regexpEnd = /<\/div|<\/h[1|2|3|4]|<\/p|<\/a|<\/span|<\/header/g;
 				data = data.replace(regexpStart,function(str){
 					var repStart = '<view';
@@ -38,9 +47,6 @@
 					switch(str){
 						case 'href=':
 							repStart = 'bindtap=';
-						break;
-						case '<img':
-							repStart = '<image';
 						break;
 					}
 					return repStart;
@@ -56,6 +62,7 @@
 					}
 					return repEnd;
 				});
+				//data = data.getQuery('img','image'); 
 				return data;
 			},
 			
