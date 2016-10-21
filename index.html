@@ -4,32 +4,43 @@
 <meta charset="UTF-8">
 <title></title>
 <link href="index.css" rel="stylesheet">
+<link href="css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
 <textarea id="source" rows="20" cols="100">
 <h1>dfdfd</h1>
-<div>sadfasdf</div>
+<div >sadf
+asdf</div>
 <h2>dfdfd</h2>
 <p>dfasdf</p>
-<img src="x" alt="">
+<img src="x1" alt="">
 <a href="">test</a>
 <div>sadfasdf</div>
-<img src="x" alt="">
+<ul class="search-nav">
+<li>asdf
+</li>
+
+ </ul>
+<img src="x2" alt="">
 </textarea>
 
 <textarea id="compiled" rows="20" cols="100"></textarea>
 
 <script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script type="text/javascript">
 	$(function(){
 		
 		String.prototype.getQuery = function(Startname,endName){ 
-			var reg = new RegExp('(^|\\<)'+Startname+' ([^<]*|\/>$)');
+			var reg = new RegExp('(^|\\<)'+Startname+' ([^<]*|\/|>$)');
 			var url = this.toString();
 			var r = url.match(reg);
-			return r === null ? null : unescape(r[0].replace(Startname,endName).replace('/>','></'+endName+'>')); 
+			//console.log(r);
+			return r === null ? null : unescape(r[0].replace(Startname,endName).replace('/','').replace('>','></'+endName+'>')); 
 		}
+		
+		
 		var str = 'http://wpa.qq.com/msgrd?v=3&uin=1438344583&site=q q&menu=yes<img src="adsfsda" />'; 
 		
 		$('#source').keyup(function(){
@@ -37,32 +48,30 @@
 			$('#compiled').val(compoled.exe(s));
 		})
 		
+		String.prototype.regexp = function(laber,repStr,end){
+			var str = this.toString();
+			var reg = eval('/<'+laber+'\\s(.*?)?>/g');
+			//console.log(reg);
+			str = str.replace(reg,'<'+repStr+' $1></'+repStr+'>');
+			//console.log(str);
+			return str;
+		}
+		
 		var compoled = {
 			exe : function(data){
-				var regexpStart = /<div|<h[1|2|3|4]|<p|<a|<span|<header|href=|<img ([^<]*|\/>$)/g;
-				var regexpEnd = /<\/div|<\/h[1|2|3|4]|<\/p|<\/a|<\/span|<\/header/g;
-				data = data.replace(regexpStart,function(str){
-					var repStart = '<view';
-					console.log(str);
-					switch(str){
-						case 'href=':
-							repStart = 'bindtap=';
-						break;
-					}
-					return repStart;
-				});
+				var label = ['div','p','h[1-7]','a','table','tr','td','th','ul','ol','li','strong','span','i'];
 				
-				data = data.replace(regexpEnd,function(str){
-					var repEnd = '</view';
-					console.log(str);
-					switch(str){
-						case 'href=':
-							repEnd = 'bindtap=';
-						break;
-					}
-					return repEnd;
-				});
-				//data = data.getQuery('img','image'); 
+				for(k in label){
+					var regexpStart = eval('/<'+label[k]+'([\\s\\S]*?)<\\/'+label[k]+'>/g');
+					data = data.replace(regexpStart,function(str,match,length){
+						var repStart = '<view'+match+'<view>';
+						console.log(str);
+						console.log(match);
+						return repStart;
+					});
+				}
+				
+				data = data.regexp('img','image');
 				return data;
 			},
 			
