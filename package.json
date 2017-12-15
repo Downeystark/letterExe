@@ -1,0 +1,12 @@
+{
+  "name": "MinProgramToH5",
+  "version": "1.0.0",
+  "description": "H5代码小程序",
+  "main": "MinProgramToH5.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-js": "babel MinProgramToH5.js -o MinProgramToH5.es5.js"
+  },
+  "author": "downeyin",
+  "license": "ISC"
+}
