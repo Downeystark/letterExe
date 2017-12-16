@@ -94,6 +94,8 @@ var MinProgramToH5 = function () {
         key: 'RunPhp',
         value: function RunPhp() {
             this.TransPhpData().TransPhpIf().TransPhpForeach();
+
+            this.TransPhpArrToJsArr().TransPhpEmpty().TransPhpIsset();
         }
 
         /* php转换普通数据 */
@@ -106,11 +108,17 @@ var MinProgramToH5 = function () {
             var discard = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.tag.php.discard;
 
             this.value = this.value.replace(eval('/<\\?=([\\s\\S]*?)\\?>/g'), function (str, match, length) {
-                match = match.replace(eval('/\\$/g'), '').replace(eval('/\\[[\'|\"]([\\s\\S]*?)[\'|\"]\\]/g'), function (s, m, l) {
-                    return '.' + m;
-                });
                 return label + match + tag;
             });
+            return this;
+        }
+
+        /* 数组转JS点式数组 */
+
+    }, {
+        key: 'TransPhpArrToJsArr',
+        value: function TransPhpArrToJsArr() {
+            this.value = this.value.replace(/\[['|"](\S*?)['|"]]/g, '.$1').replace(/\$(\S*)/g, '$1');
             return this;
         }
 
@@ -119,17 +127,18 @@ var MinProgramToH5 = function () {
     }, {
         key: 'TransPhpIf',
         value: function TransPhpIf() {
-            var label = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.tag.php.ifStart;
-            var tag = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.tag.php.ifEnd;
-            var discard = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.tag.php.discard;
+            var tag = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.tag.php.if;
 
             // 匹配 if 条件语句标签
             this.value = this.value.replace(/<\?php\s*if\s*\(([\s\S]*?)\s*\)\s*[:|{]\s*\?>/g, function (str, match, length) {
-                // 数组转JS点式数组
-                match = match.replace(eval('/\\$/g'), '').replace(eval('/\\[[\'|\"]([\\s\\S]*?)[\'|\"]\\]/g'), function (s, m, l) {
-                    return '.' + m;
-                });
-                return label + match + tag;
+                match = match.replace(/^([\s\S]*)/g, tag);
+                return '<block ' + match + ' >';
+            });
+            // 匹配 else if 结束标签
+            this.value = this.value.replace(/<\?php\s*elseif\s*\(([\s\S]*?)\s*\)\s*[:|{]\s*\?>/g, '</block>\n<block wx:elif="{{$1}}">');
+            // 匹配 else 结束标签
+            this.value = this.value.replace(/<\?php\s*(else\s*:|{)\s*\?>/g, function (str, match, length) {
+                return '</block>\n<block wx:else>';
             });
             // 匹配 if 结束标签
             this.value = this.value.replace(/<\?php\s*(endif\s*;|})\s*\?>/g, function (str, match, length) {
@@ -144,19 +153,36 @@ var MinProgramToH5 = function () {
         key: 'TransPhpForeach',
         value: function TransPhpForeach() {
             var tag = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.tag.php.foreach;
-            var discard = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.tag.php.discard;
 
-            // 匹配 if 条件语句标签
+            // 匹配 foreach 条件语句标签
             this.value = this.value.replace(/<\?php\s*foreach\s*\(([\s\S]*?)\)\s*[:|{]\s*\?>/g, function (str, match, length) {
-                match = match.replace(/^\$(\S*)\s*as\s*\$(\S*)\s*=>\s*\$(\S*)\s*/g, tag).replace(eval('/\\$/g'), '').replace(eval('/\\[[\'|\"]([\\s\\S]*?)[\'|\"]\\]/g'), function (s, m, l) {
-                    return '.' + m;
-                });
+                match = match.replace(/^\$(\S*)\s*as\s*\$(\S*)\s*=>\s*\$(\S*)\s*/g, tag);
                 return '<block ' + match + ' >';
             });
-            // 匹配 if 结束标签
+            // 匹配 foreach 结束标签
             this.value = this.value.replace(/<\?php\s*(endforeach\s*;|})\s*\?>/g, function (str, match, length) {
                 return '</block>';
             });
+            return this;
+        }
+
+        /* php转换普通数据 */
+
+    }, {
+        key: 'TransPhpEmpty',
+        value: function TransPhpEmpty() {
+            // 匹配 foreach 条件语句标签
+            this.value = this.value.replace(/!\s*empty\(([\s\S]*?)\)/g, '$1 != \'\'').replace(/empty\(([\s\S]*?)\)/g, '$1');
+            return this;
+        }
+
+        /* php转换普通数据 */
+
+    }, {
+        key: 'TransPhpIsset',
+        value: function TransPhpIsset() {
+            // 匹配 foreach 条件语句标签
+            this.value = this.value.replace(/!\s*isset\(([\s\S]*?)\)/g, '$1 != undefined').replace(/isset\(([\s\S]*?)\)/g, '$1 == undefined');
             return this;
         }
     }]);
@@ -180,8 +206,7 @@ MinProgramToH5.DEFAULTS = {
             discard: '$',
             mustacheStart: '{{',
             mustacheEnd: '}}',
-            ifStart: '<block wx:if="{{',
-            ifEnd: '}}">',
+            if: 'wx:if="{{$1}}"',
             foreach: 'wx:for="{{$1}}" wx:for-index="{{$2}}" wx:for-item={{$3}}'
         },
         single: {

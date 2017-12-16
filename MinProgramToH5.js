@@ -20,8 +20,7 @@ class MinProgramToH5 {
                 discard: '$',
                 mustacheStart: '{{',
                 mustacheEnd: '}}',
-                ifStart: '<block wx:if="{{',
-                ifEnd: '}}">',
+                if: 'wx:if="{{$1}}"',
                 foreach: 'wx:for="{{$1}}" wx:for-index="{{$2}}" wx:for-item={{$3}}',
             },
             single: {
@@ -101,28 +100,35 @@ class MinProgramToH5 {
     RunPhp() {
         this.TransPhpData().TransPhpIf().TransPhpForeach();
 
+        this.TransPhpArrToJsArr().TransPhpEmpty().TransPhpIsset();
     }
 
     /* php转换普通数据 */
     TransPhpData(label = this.tag.php.mustacheStart, tag = this.tag.php.mustacheEnd, discard = this.tag.php.discard) {
         this.value = this.value.replace(eval('/<\\?=([\\s\\S]*?)\\?>/g'), (str, match, length) => {
-            match = match.replace(eval('/\\$/g'), '').replace(eval('/\\[[\'|\"]([\\s\\S]*?)[\'|\"]\\]/g'), (s, m, l) => {
-                return '.' + m;
-            });
             return label + match + tag;
         });
         return this;
     }
 
+    /* 数组转JS点式数组 */
+    TransPhpArrToJsArr() {
+        this.value = this.value.replace(/\[['|"](\S*?)['|"]]/g, '.$1').replace(/\$(\S*)/g, '$1');
+        return this;
+    }
+
     /* php转换普通数据 */
-    TransPhpIf(label = this.tag.php.ifStart, tag = this.tag.php.ifEnd, discard = this.tag.php.discard) {
+    TransPhpIf(tag = this.tag.php.if) {
         // 匹配 if 条件语句标签
         this.value = this.value.replace(/<\?php\s*if\s*\(([\s\S]*?)\s*\)\s*[:|{]\s*\?>/g, (str, match, length) => {
-            // 数组转JS点式数组
-            match = match.replace(eval('/\\$/g'), '').replace(eval('/\\[[\'|\"]([\\s\\S]*?)[\'|\"]\\]/g'), (s, m, l) => {
-                return '.' + m;
-            });
-            return label + match + tag;
+            match = match.replace(/^([\s\S]*)/g, tag);
+            return '<block ' + match + ' >';
+        });
+        // 匹配 else if 结束标签
+        this.value = this.value.replace(/<\?php\s*elseif\s*\(([\s\S]*?)\s*\)\s*[:|{]\s*\?>/g, '</block>\n<block wx:elif="{{$1}}">');
+        // 匹配 else 结束标签
+        this.value = this.value.replace(/<\?php\s*(else\s*:|{)\s*\?>/g, (str, match, length) => {
+            return '</block>\n<block wx:else>';
         });
         // 匹配 if 结束标签
         this.value = this.value.replace(/<\?php\s*(endif\s*;|})\s*\?>/g, (str, match, length) => {
@@ -132,18 +138,30 @@ class MinProgramToH5 {
     }
 
     /* php转换普通数据 */
-    TransPhpForeach(tag = this.tag.php.foreach, discard = this.tag.php.discard) {
-        // 匹配 if 条件语句标签
+    TransPhpForeach(tag = this.tag.php.foreach) {
+        // 匹配 foreach 条件语句标签
         this.value = this.value.replace(/<\?php\s*foreach\s*\(([\s\S]*?)\)\s*[:|{]\s*\?>/g, (str, match, length) => {
-            match = match.replace(/^\$(\S*)\s*as\s*\$(\S*)\s*=>\s*\$(\S*)\s*/g, tag).replace(eval('/\\$/g'), '').replace(eval('/\\[[\'|\"]([\\s\\S]*?)[\'|\"]\\]/g'), (s, m, l) => {
-                return '.' + m;
-            });
+            match = match.replace(/^\$(\S*)\s*as\s*\$(\S*)\s*=>\s*\$(\S*)\s*/g, tag);
             return '<block ' + match + ' >';
         });
-        // 匹配 if 结束标签
+        // 匹配 foreach 结束标签
         this.value = this.value.replace(/<\?php\s*(endforeach\s*;|})\s*\?>/g, (str, match, length) => {
             return '</block>';
         });
+        return this;
+    }
+
+    /* php转换普通数据 */
+    TransPhpEmpty() {
+        // 匹配 foreach 条件语句标签
+        this.value = this.value.replace(/!\s*empty\(([\s\S]*?)\)/g, '$1 != \'\'').replace(/empty\(([\s\S]*?)\)/g, '$1');
+        return this;
+    }
+
+    /* php转换普通数据 */
+    TransPhpIsset() {
+        // 匹配 foreach 条件语句标签
+        this.value = this.value.replace(/!\s*isset\(([\s\S]*?)\)/g, '$1 != undefined').replace(/isset\(([\s\S]*?)\)/g, '$1 == undefined');
         return this;
     }
 

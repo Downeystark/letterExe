@@ -20,16 +20,25 @@
         <li>asdf</li>
         </ul>
     <img src="x2" alt="">
-    <?php if ($data['c']["v"] == $_POST['av']['bv']): ?>
-        <?php if ($data['c']["v"] == $_POST['av']['bv']) { ?>
+    <?php if ($data['ca']["v"] == $_POST['av']['bv']): ?>
+        <?php if ($data['cb']["v"] == $_POST['av']['bv']) { ?>
             asdfasd
         <?php } ?>
+    <?php elseif (isset($data['m']["cc"])): ?>
+
+    <?php else: ?>
+        asdfa
     <?php endif; ?>
 
-    <?php if ($data['c']["v"] == $_POST['av']['bv']) { ?>
+
+
+    <?php if ($data['cv']["v"] == $_POST['av']['bv'] && empty($data['ddd']) && !empty($data['ccc'])) { ?>
         asdfasd
         <?php foreach ($data['v']["cc"] as $k => $v) : ?>
             asdfa
+            <?php foreach ($data['v']["cc"] as $k => $v) : ?>
+                asdfa
+            <?php endforeach; ?>
         <?php endforeach; ?>
 
     <?php } ?>
