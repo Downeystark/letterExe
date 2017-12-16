@@ -44,6 +44,17 @@
     <?php } ?>
 
     <?= $data['v']["cc"] ?>
+
+
+    <?php if (!empty($data['tips'])): ?>
+        <div class="mask safe-tips <?= $data['ccc'] ?>" style="display: none;">
+        <div class="content">
+            <div class="title">dsas都睡到</div>
+            <div class="info"><?= $data['tips']['msg'] ?></div>
+            <button class="btn - close - mask public-btn">ssdd</button>
+        </div>
+    </div>
+    <?php endif; ?>
 </textarea>
 
 <textarea id="compiled" rows="20" cols="100" title=""></textarea>

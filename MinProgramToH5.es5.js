@@ -30,6 +30,8 @@ var MinProgramToH5 = function () {
 
             this.value = this.string;
 
+            this.RunPhp();
+
             if (this.tag.double) {
                 var _loop = function _loop(key) {
                     if (typeof _this.tag.double[key] === 'string') {
@@ -63,8 +65,6 @@ var MinProgramToH5 = function () {
                 }
             }
 
-            this.RunPhp();
-
             return this;
         }
 
@@ -82,8 +82,18 @@ var MinProgramToH5 = function () {
     }, {
         key: 'TransDouble',
         value: function TransDouble(label, tag) {
-            this.value = this.value.replace(eval('/<' + label + '([\\s\\S]*?)<\\/' + label + '>/g'), function (str, match, length) {
-                return '<' + tag + match + '</' + tag + '>';
+            // 起始标签
+            // <i[^n]([\s\S]*?)> <i class="" id="" > 式
+            this.value = this.value.replace(eval('/<' + label + '(\\s.*?)>/g'), function (str, match, length) {
+                return '<' + tag + ' ' + match + '>';
+            });
+            // <i> 式
+            this.value = this.value.replace(eval('/<' + label + '>/g'), function (str, match, length) {
+                return '<' + tag + '>';
+            });
+            // 结束标签
+            this.value = this.value.replace(eval('/<\\/' + label + '>/g'), function (str, match, length) {
+                return '</' + tag + '>';
             });
             return this;
         }
@@ -198,7 +208,7 @@ MinProgramToH5.DEFAULTS = {
     },
     tag: {
         double: {
-            view: ['div', 'p', 'h[1-6]', 'form', 'ul', 'ol', 'li', 'table'],
+            view: ['div', 'p', 'h[1-6]', 'form', 'ul', 'ol', 'li', 'table', 'header', 'main', 'nav'],
             text: ['span', 'strong', 'b', 'label', 'i'],
             a: 'navigator'
         },

@@ -9,7 +9,7 @@ class MinProgramToH5 {
         tag: {
             double: {
                 view: [
-                    'div', 'p', 'h[1-6]', 'form', 'ul', 'ol', 'li', 'table'
+                    'div', 'p', 'h[1-6]', 'form', 'ul', 'ol', 'li', 'table', 'header', 'main', 'nav'
                 ],
                 text: [
                     'span', 'strong', 'b', 'label', 'i'
@@ -51,6 +51,8 @@ class MinProgramToH5 {
     Run() {
         this.value = this.string;
 
+        this.RunPhp();
+
         if (this.tag.double) {
             for (let key in this.tag.double) {
                 if (typeof this.tag.double[key] === 'string') {
@@ -77,21 +79,29 @@ class MinProgramToH5 {
             }
         }
 
-        this.RunPhp();
-
         return this;
     }
 
     /* 单标签转双标签 */
     TransSingle(label, tag) {
-        this.value = this.value.replace(eval('/<' + label + '\\s(.*?)?>/g'), '<' + tag + ' $1></' + tag + '>')
+        this.value = this.value.replace(eval('/<' + label + '\\s(.*?)?>/g'), '<' + tag + ' $1></' + tag + '>');
         return this;
     }
 
     /* 双标签替换 */
     TransDouble(label, tag) {
-        this.value = this.value.replace(eval('/<' + label + '([\\s\\S]*?)<\\/' + label + '>/g'), (str, match, length) => {
-            return '<' + tag + match + '</' + tag + '>';
+        // 起始标签
+        // <i[^n]([\s\S]*?)> <i class="" id="" > 式
+        this.value = this.value.replace(eval('/<' + label + '(\\s.*?)>/g'), (str, match, length) => {
+            return '<' + tag + ' ' + match + '>';
+        });
+        // <i> 式
+        this.value = this.value.replace(eval('/<' + label + '>/g'), (str, match, length) => {
+            return '<' + tag + '>';
+        });
+        // 结束标签
+        this.value = this.value.replace(eval('/<\\/' + label + '>/g'), (str, match, length) => {
+            return '</' + tag + '>';
         });
         return this;
     }
