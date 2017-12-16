@@ -65,6 +65,8 @@ var MinProgramToH5 = function () {
                 }
             }
 
+            this.TransA();
+
             return this;
         }
 
@@ -95,6 +97,15 @@ var MinProgramToH5 = function () {
             this.value = this.value.replace(eval('/<\\/' + label + '>/g'), function (str, match, length) {
                 return '</' + tag + '>';
             });
+            return this;
+        }
+
+        /* A标签属性转换 */
+
+    }, {
+        key: 'TransA',
+        value: function TransA() {
+            this.value = this.value.replace(/href/g, 'url').replace(/[u|U]rl::toRoute\(\[(.*)\]\)/g, '');
             return this;
         }
 
@@ -192,7 +203,7 @@ var MinProgramToH5 = function () {
         key: 'TransPhpIsset',
         value: function TransPhpIsset() {
             // 匹配 foreach 条件语句标签
-            this.value = this.value.replace(/!\s*isset\(([\s\S]*?)\)/g, '$1 != undefined').replace(/isset\(([\s\S]*?)\)/g, '$1 == undefined');
+            this.value = this.value.replace(/!\s*isset\(([\s\S]*?)\)/g, '$1 == undefined').replace(/isset\(([\s\S]*?)\)/g, '$1');
             return this;
         }
     }]);
@@ -217,13 +228,13 @@ MinProgramToH5.DEFAULTS = {
             mustacheStart: '{{',
             mustacheEnd: '}}',
             if: 'wx:if="{{$1}}"',
-            foreach: 'wx:for="{{$1}}" wx:for-index="{{$2}}" wx:for-item={{$3}}'
+            foreach: 'wx:for="{{$1}}" wx:for-index="$2" wx:for-item="$3"'
         },
         single: {
-            input: ['input'],
+            // input: ['input'],
             image: ['img']
         },
-        ignore: ['button', 'textarea', 'audio', 'video', 'canvas']
+        ignore: ['button', 'textarea', 'audio', 'video', 'canvas', 'input']
     },
     done: function done(value) {
         console.log(value);

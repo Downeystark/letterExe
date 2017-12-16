@@ -21,14 +21,14 @@ class MinProgramToH5 {
                 mustacheStart: '{{',
                 mustacheEnd: '}}',
                 if: 'wx:if="{{$1}}"',
-                foreach: 'wx:for="{{$1}}" wx:for-index="{{$2}}" wx:for-item={{$3}}',
+                foreach: 'wx:for="{{$1}}" wx:for-index="$2" wx:for-item="$3"',
             },
             single: {
-                input: ['input'],
+                // input: ['input'],
                 image: ['img']
             },
             ignore: [
-                'button', 'textarea', 'audio', 'video', 'canvas'
+                'button', 'textarea', 'audio', 'video', 'canvas', 'input'
             ]
         },
         done: (value) => {
@@ -79,6 +79,8 @@ class MinProgramToH5 {
             }
         }
 
+        this.TransA();
+
         return this;
     }
 
@@ -103,6 +105,12 @@ class MinProgramToH5 {
         this.value = this.value.replace(eval('/<\\/' + label + '>/g'), (str, match, length) => {
             return '</' + tag + '>';
         });
+        return this;
+    }
+
+    /* A标签属性转换 */
+    TransA() {
+        this.value = this.value.replace(/href/g, 'url').replace(/[u|U]rl::toRoute\(\[(.*)\]\)/g, '');
         return this;
     }
 
@@ -171,7 +179,7 @@ class MinProgramToH5 {
     /* php转换普通数据 */
     TransPhpIsset() {
         // 匹配 foreach 条件语句标签
-        this.value = this.value.replace(/!\s*isset\(([\s\S]*?)\)/g, '$1 != undefined').replace(/isset\(([\s\S]*?)\)/g, '$1 == undefined');
+        this.value = this.value.replace(/!\s*isset\(([\s\S]*?)\)/g, '$1 == undefined').replace(/isset\(([\s\S]*?)\)/g, '$1');
         return this;
     }
 
